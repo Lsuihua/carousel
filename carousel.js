@@ -1,13 +1,14 @@
 (function(){
     // 创建一个中简者
     var Carousel = window.Carousel = function(params){
-
         // 得到画布
         this.canvas = document.getElementById(params.canvasId);
         // 获取上下文
         this.ctx = this.canvas.getContext('2d');
         // 画像比例
         this.scale = params.scale || 1;
+        // 奖品资源
+        this.resouse = null;
         // 初始化
         this.init();
         // 读取异步数据
@@ -41,7 +42,7 @@
     Carousel.prototype.loadResource = function(callBack){
         var self = this;
         // 发请求 获取JSON资源
-        var resouse = [
+        this.resouse = [
             {
                 "key":1,
                 "value":"一等奖",
@@ -87,11 +88,49 @@
     }
 
     // 画扇形
-    Carousel.prototype.draw
+    Carousel.prototype.drawSector = function(startAngle,endAngle,target){
+        /*获取随机颜色*/
+        var getRandomColor = function () {
+            var r = Math.floor(Math.random() * 256);
+            var g = Math.floor(Math.random() * 256);
+            var b = Math.floor(Math.random() * 256);
+            return 'rgb(' + r + ',' + g + ',' + b + ')';
+        }
+        this.ctx.beginPath();
+        this.ctx.moveTo(this.canvas.width/2, this.canvas.height/2);
+        this.ctx.arc(this.canvas.width/2, this.canvas.height/2, this.canvas.r, startAngle, endAngle);
+        /*随机颜色*/
+        this.ctx.fillStyle = getRandomColor();
+        this.ctx.fill();
+
+        // 弧度换算成角度
+        var dr = (startAngle + endAngle) /2 * 180 / Math.PI
+        // 画文本
+        this.ctx.beginPath();
+        this.ctx.font = '16px STheiti, SimHei';
+        console.log(startAngle,endAngle,dr)
+        this.ctx.fillText(target.value, startAngle, endAngle);
+
+        // 画图片
+        this.ctx.beginPath();
+    }
 
     // draw
     Carousel.prototype.carouselDraw = function(){
-        this.drawFullBg('red')
+        // 画背景
+        this.drawFullBg('red');
+        // 画奖品
+        // 计算扇形弧度
+        var angle = Math.PI * 2 / this.resouse.length;
+        for(let i=0;i<this.resouse.length;i++){
+            var startAngle = i * angle;
+            var endAngle = (i + 1) * angle;
+            if(i == 0){
+                this.drawSector(startAngle,endAngle,this.resouse[i]);
+            }
+            
+        }
+        
     }
 
     // 抽奖
