@@ -1,0 +1,19 @@
+body{
+    margin: 0;
+    padding: 0;
+}
+.main{
+    position: relative;
+    width: 100%;
+}
+.box-sizing{
+    box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -moz-bocx-sizing:border-box;
+}
+.title{
+    font-size: 30px;
+    font-weight: 800;
+    text-align: center;
+    margin-bottom: 20px;
+}

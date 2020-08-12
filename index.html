@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>幸运大转盘</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <div class="main">
+        <div class="title">幸运大转盘</div>
+        <div class="carousel-box">
+            <canvas id="carousel"></canvas>
+        </div>
+    </div>
+    <script src="./carousel.js"></script>
+    <script>
+        // 创建一个游戏类
+        var Carousel = new Carousel({
+            "canvasId":'carousel',
+            "scale":"0.9"
+        })
+    </script>
+</body>
+</html>
