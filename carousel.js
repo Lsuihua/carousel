@@ -26,6 +26,7 @@
 
         // 初始化
         self.init();
+
         // 读取异步数据
         self.loadResource(function() {
             // 开始画转盘
@@ -137,65 +138,35 @@
         this.ctx.closePath();
         this.ctx.fill();
 
-        // 弧度换算成角度
-        this.ctx.save();
-        this.ctx.fillStyle = "#fff000";
-        this.ctx.font = '14px bold STheiti, SimHei';
-        this.ctx.textAlign = 'center';
-        var x = (this.canvas.r - this.pd - 24) * Math.cos(ctRadain);
-        var y = (this.canvas.r - this.pd - 24) * Math.sin(ctRadain);
-        // var translateX = this.canvas.width * 0.5 + Math.cos(ctRadain) * (this.canvas.r - this.pd - 20);
-        // var translateY = this.canvas.height * 0.5 + Math.sin(ctRadain) * (this.canvas.r - this.pd - 20);
-        this.ctx.translate(x, y);
-        // rotate方法旋转当前的绘图，因为文字适合当前扇形中心线垂直的！
-        // angle，当前扇形自身旋转的角度 +  baseAngle / 2 中心线多旋转的角度  + 垂直的角度90°
-        this.ctx.rotate((baseAngle)* Math.PI / 180);
-        // 登录状态下不会出现这行文字，点击页面右上角一键登录 );
-        //设置文本位置，居中显示 
-        this.ctx.fillText(target.value, 0, 0);
+        // 图文
+
+        if(target.img){
+            var img = new Image();
+            img.src = target.img;
+            var that = this;
+            img.onload = function(){
+                // 弧度换算成角度
+                that.ctx.save();
+                that.ctx.fillStyle = "#fff000";
+                that.ctx.font = '14px bold STheiti, SimHei';
+                that.ctx.textAlign = 'center';
+                // 定位到园中心，获取文字的坐标
+                that.ctx.translate(that.canvas.width/2, that.canvas.height/2);
+                var x = (that.canvas.r - that.pd * 2) * Math.cos(ctRadain);
+                var y = (that.canvas.r - that.pd * 2) * Math.sin(ctRadain);
+                //设置文本位置，居中显示 
+                that.ctx.translate(x, y);
+                // angle，当前扇形自身旋转的角度 centerAngel  + 垂直的角度90°
+                that.ctx.rotate((centerAngel + 90)* Math.PI / 180);
+                if(target.value){
+                    that.ctx.fillText(target.value, 0, 0);
+                }
+                that.ctx.drawImage(img,0,0,400,400,-25,10,50,50);
+                that.ctx.restore();
+            };
+        }
+        
         this.ctx.restore();
-
-        // 画文本
-        // this.ctx.save();
-        // this.ctx.fillStyle = "#fff000";
-        // this.ctx.beginPath();
-        // this.ctx.font = '18px bold STheiti, SimHei';
-        // this.ctx.textAlign = 'center';
-        // this.ctx.textBaseline = "middle";
-        // // 转移坐标中心点
-        // this.ctx.translate(this.canvas.width/2, this.canvas.height/2);
-        // // 获取区域中心角度坐标
-        // var x = (this.canvas.r - this.pd - 24) * Math.cos(ctRadain);
-        // var y = (this.canvas.r - this.pd - 24) * Math.sin(ctRadain);
-        
-        // // 旋转文字 默认加90°
-        // // rotate方法旋转当前的绘图，因为文字适合当前扇形中心线垂直的！
-        // // angle，当前扇形自身旋转的角度 +  baseAngle / 2 中心线多旋转的角度  + 垂直的角度90°
-        // // this.ctx.rotate(-angle);
-        // //设置文本位置，居中显示 
-        // // console.log(angle + Math.PI / 2,this.ctx.measureText(target.value).width / 2);
-        // console.log("平均角度",centerAngel);
-        // // this.ctx.rotate(ctRadain);
-        //     // 登录状态下不会出现这行文字，点击页面右上角一键登录);
-        // this.ctx.fillText(target.value, x, y);
-        
-        // // 画图片
-        // // this.ctx.beginPath();
-        // var self = this;
-        // var img = new Image();
-        // img.src = target.img;
-        // var ximg = (this.canvas.r - this.pd - 50) * Math.cos(ctRadain);
-        // var yimg = (this.canvas.r - this.pd - 50) * Math.sin(ctRadain);
-        // // self.ctx.save();
-        // self.ctx.save();
-        // self.ctx.translate(ximg,yimg);
-        // // self.ctx.rotate(270);
-        // self.ctx.beginPath();
-        // self.ctx.drawImage(img,0,160,400,400,0,0,80,80);
-        // self.ctx.closePath();
-        // self.ctx.restore();
-
-        // self.ctx.restore(); 
     };
     // 画边缘圆点
     Carousel.prototype.drawEdge = function(index){
