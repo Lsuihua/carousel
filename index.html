@@ -11,7 +11,9 @@
         <div class="title">幸运大转盘</div>
         <div class="carousel-box">
             <canvas id="carousel"></canvas>
+            <div class="btn" id="btnControl">开始</div>
         </div>
+        
     </div>
     <script src="./carousel.js"></script>
     <script>
@@ -19,7 +21,21 @@
         var Carousel = new Carousel({
             "canvasId":'carousel',
             "scale":"0.9"
-        })
+        });
+        var startBtn = document.getElementById('btnControl');
+        startBtn.onclick  = function (e) {
+            var bClass = e.target.className;
+            if(bClass.indexOf('btn-scale-animate') != -1){
+                return;
+            };
+            // 缩放动画
+            e.target.className += ' btn-scale-animate';
+            var timer = setTimeout(function(){
+                e.target.className = 'btn';
+                clearTimeout(timer)
+            },600);
+            console.log('抽奖');
+        };
     </script>
 </body>
 </html>
