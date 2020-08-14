@@ -20,9 +20,15 @@
         
         // 转盘速度/能量
         self.speed = 10;
-        self.nenrgy = 0;
+        self.hasEnergy = false;
+        // 转动周期
+        self.cycle = 5;
+        // 转动角度
+        self.baseRatated = 0;
+        self.rotate = 0;
         // 可转次数
         self.count = 3;
+        self.timer = null;
 
         // 初始化
         self.init();
@@ -30,7 +36,8 @@
         // 读取异步数据
         self.loadResource(function() {
             // 开始画转盘
-            self.carouselDraw();
+            self.render();
+            // self.timer = window.requestAnimationFrame(self.render)
         });
     };
 
@@ -116,11 +123,11 @@
         // 角度 弧度
         var baseRadain = Math.PI * 2 / this.resouse.length,
             baseAngle = 360 / this.resouse.length,
-            curAngel = baseAngle * i,
-            targetAngel = baseAngle * (i+1),
+            curAngel = baseAngle * i + this.rotate,
+            targetAngel = baseAngle * (i+1) + this.rotate,
             centerAngel = (curAngel + targetAngel) / 2,
-            stRadain = i * baseRadain,
-            edRadain = (i + 1) * baseRadain,
+            stRadain = i * baseRadain + (this.rotate * Math.PI / 180),
+            edRadain = (i + 1) * baseRadain + (this.rotate * Math.PI / 180),
             ctRadain = (stRadain + edRadain) / 2;
         /*获取随机颜色*/
         var getRandomColor = function () {
@@ -137,41 +144,50 @@
         this.ctx.fillStyle = color || getRandomColor();
         this.ctx.closePath();
         this.ctx.fill();
-
+        var that = this;
+        var fillGraphic = function(){
+            that.ctx.fillStyle = "#fff000";
+            that.ctx.font = '14px bold STheiti, SimHei';
+            that.ctx.textAlign = 'center';
+            // 定位到园中心，获取文字的坐标
+            that.ctx.translate(that.canvas.width/2, that.canvas.height/2);
+            var x = (that.canvas.r - that.pd * 2) * Math.cos(ctRadain);
+            var y = (that.canvas.r - that.pd * 2) * Math.sin(ctRadain);
+            //设置文本位置 
+            that.ctx.translate(x, y);
+            // angle，当前扇形自身旋转的角度 centerAngel  + 垂直的角度90°
+            that.ctx.rotate((centerAngel + 90)* Math.PI / 180);
+            that.ctx.fillText(target.value, 0, 0);
+        }
         // 图文
-
         if(target.img){
+            console.log("有图片");
             var img = new Image();
             img.src = target.img;
-            var that = this;
             img.onload = function(){
-                // 弧度换算成角度
                 that.ctx.save();
-                that.ctx.fillStyle = "#fff000";
-                that.ctx.font = '14px bold STheiti, SimHei';
-                that.ctx.textAlign = 'center';
-                // 定位到园中心，获取文字的坐标
-                that.ctx.translate(that.canvas.width/2, that.canvas.height/2);
-                var x = (that.canvas.r - that.pd * 2) * Math.cos(ctRadain);
-                var y = (that.canvas.r - that.pd * 2) * Math.sin(ctRadain);
-                //设置文本位置，居中显示 
-                that.ctx.translate(x, y);
-                // angle，当前扇形自身旋转的角度 centerAngel  + 垂直的角度90°
-                that.ctx.rotate((centerAngel + 90)* Math.PI / 180);
-                if(target.value){
-                    that.ctx.fillText(target.value, 0, 0);
-                }
+                fillGraphic();
                 that.ctx.drawImage(img,0,0,400,400,-25,10,50,50);
                 that.ctx.restore();
             };
+            img.onerror = function(){
+                // 弧度换算成角度
+                that.ctx.save();
+                fillGraphic();
+                that.ctx.restore();
+            }
+        }else{
+            that.ctx.save();
+            fillGraphic();
+            that.ctx.restore();
         }
-        
-        this.ctx.restore();
+        that.ctx.restore();
     };
     // 画边缘圆点
     Carousel.prototype.drawEdge = function(index){
         this.ctx.save();
-        var raDain = Math.PI * 2 / this.edgeNum * index;
+        var raDain = Math.PI * 2 / this.edgeNum * index + (this.rotate * Math.PI / 180);
+        // 登录状态下不会出现这行文字，点击页面右上角一键登录;
         this.ctx.beginPath();
         // 转移中心点
         this.ctx.translate(this.canvas.width/2,this.canvas.height /2);
@@ -195,8 +211,8 @@
         this.ctx.restore();
     };
 
-    //画主体
-    Carousel.prototype.carouselDraw = function () {
+    //渲染
+    Carousel.prototype.render = function () {
         // 画背景
         this.drawFullBg();
         
@@ -210,13 +226,27 @@
         }
     };
 
+    // 更新
+    Carousel.prototype.upDated = function(){
+        this.rotate += this.speed;
+    };
+
+    Carousel.prototype.animate = function(){
+        var self = this;
+        var requestId = window.requestAnimationFrame(function(){
+            console.log("rotate")
+            // 清屏 
+            self.ctx.clearRect(0,0,self.canvas.width,self.canvas.height);
+            // 渲染转盘
+            self.upDated();
+            self.render();
+            window.requestAnimationFrame(self.animate)
+        })
+    };
+
     // 抽奖  抽奖动画
     Carousel.prototype.start = function () {
-        var startBtn = document.getElementById('btnControl');
-        startBtn.onclick = function (e) {
-            console.log('抽奖');
-            // 缩放动画
-            e.target.className = 'scla-down';
-        };
+        console.log("转动");
+        this.animate();
     };
 })();

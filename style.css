@@ -44,7 +44,7 @@ body{
     text-align: center;
     line-height: 70px;
     box-shadow: 0 0 4px rgba(0,0,0,.3);
-    border: 5px solid red;
+    border: 6px solid red;
     font-weight: 800;
     z-index: 5;
     box-sizing: border-box;
