@@ -20,8 +20,8 @@
 
         // 音乐资源
         self.bgm = document.getElementById('bgm');
-        self.prizeMusic = document.getElementById('rotate-music');
-        self.rotateMusic = document.getElementById('prize-music');
+        self.prizeMusic = document.getElementById('prize-music');
+        self.rotateMusic = document.getElementById('rotate-music');
         
         // 转盘速度/能量
         self.speed = 1;
