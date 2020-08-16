@@ -1,5 +1,5 @@
 (function(){
-    // 创建一个中简者
+    // 创建一个中间者
     var Carousel = window.Carousel = function (params) {
         var self = this;
         // 得到画布
@@ -17,27 +17,35 @@
         self.colorList = null;
         // 边框圆点数量
         self.edgeNum = 24;
+
+        // 音乐资源
+        self.bgm = document.getElementById('bgm');
+        self.prizeMusic = document.getElementById('rotate-music');
+        self.rotateMusic = document.getElementById('prize-music');
         
         // 转盘速度/能量
-        self.speed = 10;
-        self.hasEnergy = false;
+        self.speed = 1;
+        self.rate = 1;
         // 转动周期
-        self.cycle = 5;
+        self.cycle = 6;
         // 转动角度
-        self.baseRatated = 0;
+        self.baseRotated = 0;
         self.rotate = 0;
         // 可转次数
-        self.count = 3;
+        self.count = 300;
         self.timer = null;
+
+        // 抽奖结果
+        self.result = null;
+        self.state = null;
 
         // 初始化
         self.init();
 
         // 读取异步数据
         self.loadResource(function() {
-            // 开始画转盘
-            self.render();
-            // self.timer = window.requestAnimationFrame(self.render)
+            // 改变this指向 carousel  渲染第一帧;
+            window.requestAnimationFrame(self.render.bind(self));
         });
     };
 
@@ -129,6 +137,7 @@
             stRadain = i * baseRadain + (this.rotate * Math.PI / 180),
             edRadain = (i + 1) * baseRadain + (this.rotate * Math.PI / 180),
             ctRadain = (stRadain + edRadain) / 2;
+        
         /*获取随机颜色*/
         var getRandomColor = function () {
             var r = Math.floor(Math.random() * 256);
@@ -158,10 +167,9 @@
             // angle，当前扇形自身旋转的角度 centerAngel  + 垂直的角度90°
             that.ctx.rotate((centerAngel + 90)* Math.PI / 180);
             that.ctx.fillText(target.value, 0, 0);
-        }
+        };
         // 图文
         if(target.img){
-            console.log("有图片");
             var img = new Image();
             img.src = target.img;
             img.onload = function(){
@@ -175,7 +183,7 @@
                 that.ctx.save();
                 fillGraphic();
                 that.ctx.restore();
-            }
+            };
         }else{
             that.ctx.save();
             fillGraphic();
@@ -185,9 +193,8 @@
     };
     // 画边缘圆点
     Carousel.prototype.drawEdge = function(index){
-        this.ctx.save();
         var raDain = Math.PI * 2 / this.edgeNum * index + (this.rotate * Math.PI / 180);
-        // 登录状态下不会出现这行文字，点击页面右上角一键登录;
+        this.ctx.save();
         this.ctx.beginPath();
         // 转移中心点
         this.ctx.translate(this.canvas.width/2,this.canvas.height /2);
@@ -215,7 +222,6 @@
     Carousel.prototype.render = function () {
         // 画背景
         this.drawFullBg();
-        
         // 画扇形主内容
         for (var i = 0; i < this.resouse.length; i++) {
             this.drawSector(i, this.resouse[i],this.colors[i]);
@@ -228,25 +234,99 @@
 
     // 更新
     Carousel.prototype.upDated = function(){
-        this.rotate += this.speed;
+        if(this.state == 'off'){
+            this.rate -= 0.02;
+            if(this.rate <= 1){
+                this.rate = 1;
+            }
+        }else{
+            this.rate += 0.2;
+            if(this.rate >= 6){
+                this.rate = 6;
+            }
+        }
+        this.rotate = this.rotate + this.speed * this.rate;
     };
 
-    Carousel.prototype.animate = function(){
+    // 开始动画
+    Carousel.prototype.animation = function(){
         var self = this;
-        var requestId = window.requestAnimationFrame(function(){
-            console.log("rotate")
+        if(self.rotate >= self.baseRotated && self.state == 'off'){
+            self.rotateMusic.pause();
+            // console.log("===========>转盘停止");
+
+            self.rotate = self.baseRotated;
+            window.cancelAnimationFrame(self.timer);
+            // 停止动画  清空数据 
+            self.prizeMusic.play();
+            self.timer = null;
+            self.state = '';
+            self.baseRotated = 0;
+            self.rotate = 0;
+            return;
+        }
+        self.timer = window.requestAnimationFrame(function(){
             // 清屏 
             self.ctx.clearRect(0,0,self.canvas.width,self.canvas.height);
-            // 渲染转盘
+            // 渲染
             self.upDated();
             self.render();
-            window.requestAnimationFrame(self.animate)
-        })
+            self.timer = window.requestAnimationFrame(self.animation.bind(self));
+        });
+    };
+
+    // 请求中奖结果
+    Carousel.prototype.requestResult = function(callBack){
+        var self = this;
+        self.state = 'on';
+        var time = setTimeout(function(){
+            self.result = {
+                "key": 1,
+                "value": "一等奖",
+                "img": "./imgs/mini.jpg"
+            };
+            var bsAngle = 360 / self.resouse.length,
+                angleInterval = 0;
+            // 计算转盘的获奖角度区间
+            self.resouse.map(function(item,index){
+                if(item.key == self.result.key){
+                    var stAngle = bsAngle * index + 5, 
+                        edAngle = bsAngle * (index +1) - 5;
+                    angleInterval = Math.floor(Math.random() * (edAngle - stAngle + 1) + stAngle);
+                }
+            });
+            console.log("角度区域====>",angleInterval);
+            // 计算奖品旋转角度
+            self.rotate = self.rotate % 360;
+            self.baseRotated = 360 * 3 - 90 - angleInterval;
+            clearTimeout(time);
+            callBack();
+        },2000);
     };
 
     // 抽奖  抽奖动画
     Carousel.prototype.start = function () {
-        console.log("转动");
-        this.animate();
+        var self = this;
+        console.log("转动====> 执行动画");
+        if(self.state == 'on'){
+            // 正在转
+            return;
+        }
+        if(self.count<= 0){
+            return console.log("======> 你已没有次数");
+        }
+        /**
+         *  发请求 抽奖动作
+         *  执行动画
+         *  响应抽奖结果
+         *  停止抽奖动画
+         *  显示奖品
+         */
+        self.rotateMusic.play();
+        self.animation();
+        self.requestResult(function(){
+            self.count --;
+            self.state = 'off';
+        });
     };
 })();

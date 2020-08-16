@@ -5,25 +5,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>幸运大转盘</title>
     <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="./font/iconfont.css">
 </head>
 <body>
     <div class="main">
+        <div id="bgm-control" class="iconfont pause iconjingyin"></div>
         <div class="title">幸运大转盘</div>
         <div class="carousel-box">
             <canvas id="carousel"></canvas>
             <div class="btn" id="btnControl">开始</div>
         </div>
-        
+
+
+        <!-- 音乐资源 -->
+        <audio id="bgm" src="./BGM.wav" loop>
+            <source src="./BGM.wav" type="audio/wav" />
+        </audio>
+        <audio id="rotate-music" src="./rotating.wav" loop="loop">
+            <source src="./rotating.wav" type="audio/wav" />
+        </audio>
+        <audio id="prize-music" src="./winning.wav">
+            <source src="./winning.wav" type="audio/wav" />
+        </audio>
     </div>
     <script src="./carousel.js"></script>
     <script>
+        var carouselBtn = document.getElementById('btnControl'),
+            bgmBtn = document.getElementById('bgm-control');
         // 创建一个游戏类
         var Carousel = new Carousel({
             "canvasId":'carousel',
             "scale":"0.9"
         });
-        var startBtn = document.getElementById('btnControl');
-        startBtn.onclick  = function (e) {
+        
+        // 抽奖按钮
+        carouselBtn.onclick  = function (e) {
             var bClass = e.target.className;
             if(bClass.indexOf('btn-scale-animate') != -1){
                 return;
@@ -36,6 +52,17 @@
             },600);
             console.log('抽奖');
             Carousel.start();
+        };
+        //背景音乐
+        bgmBtn.onclick = function(e){
+            var eClass = e.target.className;
+            if(eClass.indexOf('player') != -1){
+                e.target.className = eClass.replace(/player iconz/g, 'pause iconjingyin');
+                Carousel.bgm.pause();
+            }else{
+                e.target.className = eClass.replace(/pause iconjingyin/g, 'player iconz');
+                Carousel.bgm.play();
+            }
         };
     </script>
 </body>

@@ -2,6 +2,10 @@ body{
     margin: 0;
     padding: 0;
 }
+img{
+    max-width: 100%;
+    display: inline-block;
+}
 .main{
     position: relative;
     width: 100%;
@@ -13,6 +17,27 @@ body{
     content: '';
     clear: both;
 }
+#bgm-control{
+    position: absolute;
+    top: 20px;
+    right: 16px;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    text-align: center;
+    line-height: 36px;
+    box-shadow: 0 0 4px rgba(0,0,0,.1);
+    background: radial-gradient(#FFEB3B,#FFA000);
+    color: #fff;
+    font-size: 18px!important;
+    font-weight: 800;
+    text-shadow: 1px 1px 4px #F44336;
+}
+
+.player{
+    animation: musicControl linear 6s infinite;
+}
+
 .box-sizing{
     box-sizing: border-box;
     -webkit-box-sizing: border-box;
@@ -67,6 +92,7 @@ body{
     z-index: 4;
 }
 
+/* 按钮缩放 */
 @keyframes btnScale{
     0%{
         transform:translate(-50%,-50%) scale(1);
@@ -76,5 +102,15 @@ body{
     }
     100%{
         transform:translate(-50%,-50%) scale(1);
+    }
+}
+
+/* 音乐控件 */
+@keyframes musicControl{
+    0%{
+        transform: rotate(0deg);
+    }
+    100%{
+        transform: rotate(360deg);
     }
 }
