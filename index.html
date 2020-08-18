@@ -10,28 +10,78 @@
 <body>
     <div class="main">
         <div id="bgm-control" class="iconfont pause iconjingyin"></div>
-        <div class="title">幸运大转盘</div>
+        <div class="title">
+            <h2 class="">幸运大转盘</h2>
+            <p>赢取惊喜大礼包</p>
+        </div>
         <div class="carousel-box">
             <canvas id="carousel"></canvas>
             <div class="btn" id="btnControl">开始</div>
         </div>
 
+        <div class="tips">您还有两次抽奖机会</div>
+
         <!-- 内容 -->
-        <div class="carousel-content">
+        <section class="carousel-content tabs">
             <div class="carousel-hd">
-                <span class="hd-item active">规则</span>
-                <span class="hd-item">记录</span>
+                <span class="hd-item active">抽奖规则</span>
+                <span class="hd-item">抽奖记录</span>
             </div>
             <!-- 规则 -->
-            <div class="carousel-item carousel-rule">
-
+            <div class="carousel-item carousel-rule carousel-item-active">
+                <ol>
+                    <li>活动时间：2018年1月25日—2018年2月9日（在活动时间内，活动资源送完则活动自动结束）;</li>
+                    <li>参与方式：在“浙江移动”微信公众号中回复“福袋”关键字;</li>
+                    <li>活动规则：用户在活动期间参与活动，可通过本人参与、受邀、邀请好友三种方式参与活动，每个手机号累计最多获得11个福袋;</li>
+                    <li>活动奖品：福袋的中奖概率为100%，内含奖励及具体中奖概率如下;</li>
+                </ol>
             </div>
             <!-- 记录 -->
             <div class="carousel-item carousel-log">
-
+                <div class="flex-center-between log-item">
+                    <div class="left">
+                        <img src="./imgs/null.jpg" class="logo">
+                        <span>XXX某某人</span>
+                    </div>
+                    <span class="date">一等奖</span>
+                </div>
+                <div class="flex-center-between log-item">
+                    <div class="left">
+                        <img src="./imgs/null.jpg" class="logo">
+                        <span>XXX某某人</span>
+                    </div>
+                    <span class="date">二等奖</span>
+                </div>
             </div>
+        </section>
+
+        <!-- 奖品dialog -->
+        <div class="prize">
+            <div class="prize-body">
+                <div class="content">
+                    <div class="hd">恭喜您中奖了</div>
+                    <div class="coupon flex-center-between">
+                        <div class="left">
+                            <img src="./imgs/null.jpg" class="logo">
+                        </div>
+                        <div class="right">
+                            <div class="text-cut name">金逸影院兑换券</div>
+                            <span class="detail text-cut">有效期至2016/12/28</span>
+                        </div>
+                    </div>
+                    <div class="info">优惠券备注信息优惠券备注信息</div>
+                    <!-- 关闭 -->
+                    <span class="close" id="close">×</span>
+                </div>
+                <div class="btn-group">
+                    <div class="btn-item">立即去使用</div>
+                </div>
+            </div>
+            <img src="./imgs/xs.png" class="xs">
         </div>
 
+        <!-- 图片素材 -->
+        <img src="./imgs/box.png" class="box">
         <!-- 音乐资源 -->
         <audio id="bgm" src="./BGM.wav" loop>
             <source src="./BGM.wav" type="audio/wav" />
@@ -43,16 +93,17 @@
             <source src="./winning.wav" type="audio/wav" />
         </audio>
     </div>
+    <script src="./zepto.js"></script>
     <script src="./carousel.js"></script>
     <script>
         var carouselBtn = document.getElementById('btnControl'),
-            bgmBtn = document.getElementById('bgm-control');
+            bgmBtn = document.getElementById('bgm-control'),
+            closeBtn = document.getElementById('close');
         // 创建一个游戏类
         var Carousel = new Carousel({
             "canvasId":'carousel',
             "scale":"0.9"
         });
-        
         // 抽奖按钮
         carouselBtn.onclick  = function (e) {
             var bClass = e.target.className;
@@ -60,12 +111,11 @@
                 return;
             };
             // 缩放动画
-            e.target.className += ' btn-scale-animate';
+            $(this).addClass('btn-scale-animate')
             var timer = setTimeout(function(){
-                e.target.className = 'btn';
+                $(e.target).removeClass('btn-scale-animate');
                 clearTimeout(timer)
             },600);
-            console.log('抽奖');
             Carousel.start();
         };
         //背景音乐
@@ -79,6 +129,21 @@
                 Carousel.bgm.play();
             }
         };
+
+        // 关闭弹窗
+        closeBtn.onclick = function(){
+            $('.prize').removeClass('prize-show');
+        };
+
+        // 内容切换
+        var tabItem = document.querySelectorAll('.hd-item'),
+            contentItem = document.querySelectorAll('.carousel-item');
+        tabItem.forEach((item,index) =>{
+            item.onclick = function(e){
+                $(this).addClass('active').siblings().removeClass('active');
+                $(contentItem[index]).addClass('carousel-item-active').siblings().removeClass('carousel-item-active')
+            }
+        });
     </script>
 </body>
 </html>

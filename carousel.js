@@ -3,9 +3,15 @@
     var Carousel = window.Carousel = function (params) {
         var self = this;
         // 得到画布
-        self.canvas = document.getElementById(params.canvasId);
+        // self.canvas = document.getElementById(params.canvasId);
+        self.caseCanvas = document.getElementById(params.canvasId);
         // 获取上下文
+        self.caseCtx = self.caseCanvas.getContext('2d');
+        // self.ctx = self.canvas.getContext('2d');
+        // 新建一个 canvas 作为缓存 canvas
+        self.canvas = document.createElement('canvas');
         self.ctx = self.canvas.getContext('2d');
+
         // 笔触大小
         self.ctx.lineWidth = 10;
         // 画像比例
@@ -24,13 +30,16 @@
         self.rotateMusic = document.getElementById('rotate-music');
         
         // 转盘速度/能量
-        self.speed = 1;
-        self.rate = 1;
+        self.speed = 2;
+        self.t = 1;
+        self.vs = 0.5;
+        self.rate = 0;
         // 转动周期
-        self.cycle = 6;
+        self.cycle = 2;
         // 转动角度
         self.baseRotated = 0;
         self.rotate = 0;
+        self.hasEnergy = false;
         // 可转次数
         self.count = 300;
         self.timer = null;
@@ -44,8 +53,9 @@
 
         // 读取异步数据
         self.loadResource(function() {
-            // 改变this指向 carousel  渲染第一帧;
-            window.requestAnimationFrame(self.render.bind(self));
+            self.render(function(){
+                self.caseCtx.drawImage(self.canvas,0,0);
+            })
         });
     };
 
@@ -65,6 +75,9 @@
         // 匹配视口
         this.canvas.width = windowW;
         this.canvas.height = windowW;
+
+        this.caseCanvas.width = windowW;
+        this.caseCanvas.height = windowW;
         // 获取最短边半径
         this.canvas.r = Math.min(this.canvas.width, this.canvas.height) / 2 * this.scale;
         document.querySelector('.main').style.width = windowH;
@@ -107,7 +120,7 @@
         ];
         self.colors = ["#AE3EFF","#4D3FFF","#FC262C","#3A8BFF","#EE7602","#FE339F"];
         // 请求成功 执行 callBack
-        callBack();
+        callBack && callBack();
     };
 
     // 画圆背景
@@ -153,43 +166,43 @@
         this.ctx.fillStyle = color || getRandomColor();
         this.ctx.closePath();
         this.ctx.fill();
-        var that = this;
+        var self = this;
         var fillGraphic = function(){
-            that.ctx.fillStyle = "#fff000";
-            that.ctx.font = '14px bold STheiti, SimHei';
-            that.ctx.textAlign = 'center';
+            self.ctx.fillStyle = "#fff000";
+            self.ctx.font = '14px bold STheiti, SimHei';
+            self.ctx.textAlign = 'center';
             // 定位到园中心，获取文字的坐标
-            that.ctx.translate(that.canvas.width/2, that.canvas.height/2);
-            var x = (that.canvas.r - that.pd * 2) * Math.cos(ctRadain);
-            var y = (that.canvas.r - that.pd * 2) * Math.sin(ctRadain);
+            self.ctx.translate(self.canvas.width/2, self.canvas.height/2);
+            var x = (self.canvas.r - self.pd * 2) * Math.cos(ctRadain);
+            var y = (self.canvas.r - self.pd * 2) * Math.sin(ctRadain);
             //设置文本位置 
-            that.ctx.translate(x, y);
+            self.ctx.translate(x, y);
             // angle，当前扇形自身旋转的角度 centerAngel  + 垂直的角度90°
-            that.ctx.rotate((centerAngel + 90)* Math.PI / 180);
-            that.ctx.fillText(target.value, 0, 0);
+            self.ctx.rotate((centerAngel + 90)* Math.PI / 180);
+            self.ctx.fillText(target.value, 0, 0);
         };
         // 图文
         if(target.img){
             var img = new Image();
             img.src = target.img;
             img.onload = function(){
-                that.ctx.save();
+                self.ctx.save();
                 fillGraphic();
-                that.ctx.drawImage(img,0,0,400,400,-25,10,50,50);
-                that.ctx.restore();
+                self.ctx.drawImage(img,0,0,400,400,-25,10,50,50);
+                self.ctx.restore();
             };
             img.onerror = function(){
                 // 弧度换算成角度
-                that.ctx.save();
+                self.ctx.save();
                 fillGraphic();
-                that.ctx.restore();
+                self.ctx.restore();
             };
         }else{
-            that.ctx.save();
+            self.ctx.save();
             fillGraphic();
-            that.ctx.restore();
+            self.ctx.restore();
         }
-        that.ctx.restore();
+        self.ctx.restore();
     };
     // 画边缘圆点
     Carousel.prototype.drawEdge = function(index){
@@ -219,54 +232,72 @@
     };
 
     //渲染
-    Carousel.prototype.render = function () {
+    Carousel.prototype.render = function (callBack) {
+        var self = this;
         // 画背景
-        this.drawFullBg();
+        self.drawFullBg();
         // 画扇形主内容
-        for (var i = 0; i < this.resouse.length; i++) {
-            this.drawSector(i, this.resouse[i],this.colors[i]);
+        for (var i = 0; i < self.resouse.length; i++) {
+            self.drawSector(i, self.resouse[i],self.colors[i]);
         }
         // 转盘边缘
-        for(var j = 0;j<this.edgeNum; j++){
-            this.drawEdge(j);
+        for(var j = 0;j<self.edgeNum; j++){
+            self.drawEdge(j);
         }
+        // 延迟资源加载回调
+        var t = setTimeout(function(){
+            callBack && callBack();
+            clearTimeout(t);
+        },120);
     };
 
     // 更新
     Carousel.prototype.upDated = function(){
         if(this.state == 'off'){
-            this.rate -= 0.02;
+            // 计算周期
+            this.cycle = this.baseRotated / 360;
+            console.log(this.cycle)
+            this.rate -= 0.3;
             if(this.rate <= 1){
-                this.rate = 1;
+                this.rate = 0.5;
             }
         }else{
-            this.rate += 0.2;
-            if(this.rate >= 6){
-                this.rate = 6;
+            this.rate += 0.5;
+            if(this.rate >= 8){
+                this.rate = 8;
             }
         }
         this.rotate = this.rotate + this.speed * this.rate;
+        if(this.rotate >= this.baseRotated && this.state == 'off'){
+            this.rotate = this.baseRotated;
+        }
     };
 
     // 开始动画
     Carousel.prototype.animation = function(){
         var self = this;
         if(self.rotate >= self.baseRotated && self.state == 'off'){
+            console.log(self.rotate,self.baseRotated)
+            // 出现弹窗 播放音乐
+            $('.prize').addClass('prize-show');
             self.rotateMusic.pause();
             // console.log("===========>转盘停止");
-
             self.rotate = self.baseRotated;
             window.cancelAnimationFrame(self.timer);
             // 停止动画  清空数据 
             self.prizeMusic.play();
             self.timer = null;
             self.state = '';
+            self.rate = 0.6;
             self.baseRotated = 0;
             self.rotate = 0;
             return;
         }
         self.timer = window.requestAnimationFrame(function(){
             // 清屏 
+            self.caseCtx.clearRect(0,0,self.canvas.width,self.canvas.height);
+            // 将缓存 canvas 复制到旧的 canvas
+            self.caseCtx.drawImage(self.canvas,0,0);
             self.ctx.clearRect(0,0,self.canvas.width,self.canvas.height);
             // 渲染
             self.upDated();
@@ -281,7 +312,7 @@
         self.state = 'on';
         var time = setTimeout(function(){
             self.result = {
-                "key": 1,
+                "key": 2,
                 "value": "一等奖",
                 "img": "./imgs/mini.jpg"
             };
@@ -290,17 +321,18 @@
             // 计算转盘的获奖角度区间
             self.resouse.map(function(item,index){
                 if(item.key == self.result.key){
-                    var stAngle = bsAngle * index + 5, 
-                        edAngle = bsAngle * (index +1) - 5;
+                    var stAngle = bsAngle * index + 10, 
+                        edAngle = bsAngle * (index + 1) - 10;
                     angleInterval = Math.floor(Math.random() * (edAngle - stAngle + 1) + stAngle);
+                    console.log(stAngle,edAngle)
                 }
             });
             console.log("角度区域====>",angleInterval);
             // 计算奖品旋转角度
             self.rotate = self.rotate % 360;
-            self.baseRotated = 360 * 3 - 90 - angleInterval;
+            self.baseRotated = 360 * self.cycle - 90 - angleInterval;
             clearTimeout(time);
-            callBack();
+            callBack && callBack();
         },2000);
     };
 
