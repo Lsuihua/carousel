@@ -3,11 +3,9 @@
     var Carousel = window.Carousel = function (params) {
         var self = this;
         // 得到画布
-        // self.canvas = document.getElementById(params.canvasId);
         self.caseCanvas = document.getElementById(params.canvasId);
         // 获取上下文
         self.caseCtx = self.caseCanvas.getContext('2d');
-        // self.ctx = self.canvas.getContext('2d');
         // 新建一个 canvas 作为缓存 canvas
         self.canvas = document.createElement('canvas');
         self.ctx = self.canvas.getContext('2d');
@@ -31,15 +29,13 @@
         
         // 转盘速度/能量
         self.speed = 2;
-        self.t = 1;
-        self.vs = 0.5;
         self.rate = 0;
         // 转动周期
-        self.cycle = 2;
+        self.cycle = 5;
         // 转动角度
         self.baseRotated = 0;
         self.rotate = 0;
-        self.hasEnergy = false;
+        self.prizeRotate = 0;
         // 可转次数
         self.count = 300;
         self.timer = null;
@@ -55,7 +51,7 @@
         self.loadResource(function() {
             self.render(function(){
                 self.caseCtx.drawImage(self.canvas,0,0);
-            })
+            });
         });
     };
 
@@ -254,17 +250,15 @@
     // 更新
     Carousel.prototype.upDated = function(){
         if(this.state == 'off'){
-            // 计算周期
-            this.cycle = this.baseRotated / 360;
-            console.log(this.cycle)
-            this.rate -= 0.3;
+            // 角度越低 减的越快  角度越高  减的越慢
+            this.rate -= this.prizeRotate / 360 * (this.rotate / 360);
             if(this.rate <= 1){
-                this.rate = 0.5;
+                this.rate = 1;
             }
         }else{
-            this.rate += 0.5;
-            if(this.rate >= 8){
-                this.rate = 8;
+            this.rate += 0.3;
+            if(this.rate >= 13){
+                this.rate = 13;
             }
         }
         this.rotate = this.rotate + this.speed * this.rate;
@@ -277,7 +271,7 @@
     Carousel.prototype.animation = function(){
         var self = this;
         if(self.rotate >= self.baseRotated && self.state == 'off'){
-            console.log(self.rotate,self.baseRotated)
+            console.log(self.rotate,self.baseRotated);
             // 出现弹窗 播放音乐
             $('.prize').addClass('prize-show');
             self.rotateMusic.pause();
@@ -288,8 +282,9 @@
             self.prizeMusic.play();
             self.timer = null;
             self.state = '';
-            self.rate = 0.6;
+            self.rate = 0;
             self.baseRotated = 0;
+            self.prizeRotate = 0;
             self.rotate = 0;
             return;
         }
@@ -312,27 +307,28 @@
         self.state = 'on';
         var time = setTimeout(function(){
             self.result = {
-                "key": 2,
+                "key": 1,
                 "value": "一等奖",
                 "img": "./imgs/mini.jpg"
             };
-            var bsAngle = 360 / self.resouse.length,
-                angleInterval = 0;
+            var bsAngle = 360 / self.resouse.length;
             // 计算转盘的获奖角度区间
             self.resouse.map(function(item,index){
                 if(item.key == self.result.key){
                     var stAngle = bsAngle * index + 10, 
                         edAngle = bsAngle * (index + 1) - 10;
-                    angleInterval = Math.floor(Math.random() * (edAngle - stAngle + 1) + stAngle);
-                    console.log(stAngle,edAngle)
+                    self.prizeRotate = Math.floor(Math.random() * (edAngle - stAngle + 1) + stAngle);
+                    console.log(stAngle,edAngle);
+                    return;
                 }
             });
-            console.log("角度区域====>",angleInterval);
+           
             // 计算奖品旋转角度
             self.rotate = self.rotate % 360;
-            self.baseRotated = 360 * self.cycle - 90 - angleInterval;
+            self.baseRotated = Math.floor(360 * self.cycle - 90 - self.prizeRotate);
             clearTimeout(time);
             callBack && callBack();
+            console.log("角度区域====>",self.prizeRotate,self.baseRotated,self.baseRotated%360);
         },2000);
     };
 
@@ -355,6 +351,7 @@
          *  显示奖品
          */
         self.rotateMusic.play();
+        console.log("播放");
         self.animation();
         self.requestResult(function(){
             self.count --;
