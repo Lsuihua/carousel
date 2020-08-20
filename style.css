@@ -200,18 +200,18 @@ ul,ol{
 .log-item .logo{
     width: 34px;
     height: 34px;
-    border-radius: 50%;
+    border-radius:8px;
     display: inline-block;
     vertical-align: middle;
     margin-right: 4px;
 }
 .log-item .date{
     font-size: 12px;
-    color: #dedede;
+    color: #fff;
 }
 
 /* 奖品样式 */
-.prize{
+.prize,.not-winning{
     position: fixed;
     background: rgba(0,0,0,.4);
     width: 100%;
@@ -220,16 +220,16 @@ ul,ol{
     left: 0;
     z-index: -9;
 }
-.prize-show{
+.dialog-show{
     z-index: 9;
 }
-.prize>.prize-body{
+.prize>.dialog-body,.not-winning>.dialog-body{
     width: 84%;
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%,-50%);
-    animation: prizeDialog 5s;
+    animation: prizeDialog .5s ease-in;
 }
 .prize .xs{
     position:absolute;
@@ -239,9 +239,9 @@ ul,ol{
     transform: translate(-50%,-50%);
     z-index: 3;
     pointer-events: none;
-    animation: prizeDialog 5s;
+    animation: prizeDialog .5s ease-in;
 }
-.prize>.prize-body .content{
+.prize>.dialog-body .content{
     width: 100%;
     border-radius: 8px;
     background: linear-gradient(220deg, #fe4b37, #ffc107);
@@ -250,7 +250,7 @@ ul,ol{
     position: relative;
     box-shadow: 0px 4px 4px #c13323;
 }
-.prize>.prize-body .close{
+.prize>.dialog-body .close{
     position: absolute;
     right: 12px;
     top: 0;
@@ -258,7 +258,7 @@ ul,ol{
     color: #ffbdbd;
     z-index: 9;
 }
-.prize>.prize-body .hd{
+.prize>.dialog-body .hd{
     text-align: center;
     font-size: 26px;
     margin-bottom: 10px;
@@ -268,7 +268,7 @@ ul,ol{
     text-shadow: 0 0 10px #000000;
     transform: translateY(-6px);
 }
-.prize>.prize-body .coupon{
+.prize>.dialog-body .coupon{
     background: #fff;
     position: relative;
     padding: 10px;
@@ -277,11 +277,11 @@ ul,ol{
     margin-bottom: 8px;
     box-shadow: 2px 2px rgba(0,0,0,.2);
 }
-.prize>.prize-body .info{
+.prize>.dialog-body .info{
     text-align: center;
 }
 
-.prize>.prize-body .coupon::before,.prize>.prize-body .coupon::after{
+.prize>.dialog-body .coupon::before,.prize>.dialog-body .coupon::after{
     content: '';
     display: block;
     width: 16px;
@@ -290,21 +290,22 @@ ul,ol{
     position: absolute;
     left:70px;
 }
-.prize>.prize-body .coupon::before{
+.prize>.dialog-body .coupon::before{
     top: -10px;
     background: #ff8b1d;
 }
-.prize>.prize-body .coupon::after{
+.prize>.dialog-body .coupon::after{
     background: #ffa114;
     bottom: -10px;
     box-shadow: 0px 2px rgba(0,0,0,.2) inset;
 }
 
-.prize>.prize-body .coupon>.left{
+.prize>.dialog-body .coupon>.left{
     width: 50px;
     height: 50px;
+    border-radius: 8px;
 }
-.prize>.prize-body .coupon>.left::before{
+.prize>.dialog-body .coupon>.left::before{
     position: absolute;
     content: '';
     width: 1px;
@@ -312,18 +313,18 @@ ul,ol{
     background: rgba(0,0,0,.1);
     left:78px;
 }
-.prize>.prize-body .coupon>.right{
+.prize>.dialog-body .coupon>.right{
     width: calc(100% - 84px);
     text-align: left;
 }
-.prize>.prize-body .coupon>.right .name{
+.prize>.dialog-body .coupon>.right .name{
     margin-bottom: 4px;
 }
-.prize>.prize-body .btn-group{
+.prize>.dialog-body .btn-group{
     text-align: center;
     margin-top: 24px;
 }
-.prize>.prize-body .btn-group>.btn-item{
+.prize>.dialog-body .btn-group>.btn-item{
     background: linear-gradient(45deg, #ffba0a, #ffeb3b);
     color: #4d2b00;
     text-align: center;
@@ -333,6 +334,9 @@ ul,ol{
     font-size: 14px;
     box-shadow: 1px 2px #964d00;
 }
+
+/* 未中奖 */
+
 
 /* 按钮缩放 */
 @keyframes btnScale{

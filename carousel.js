@@ -10,6 +10,11 @@
         self.canvas = document.createElement('canvas');
         self.ctx = self.canvas.getContext('2d');
 
+        // 音乐资源
+        self.bgm = document.getElementById('bgm');
+        self.prizeMusic = document.getElementById('prize-music');
+        self.rotateMusic = document.getElementById('rotate-music');
+
         // 笔触大小
         self.ctx.lineWidth = 10;
         // 画像比例
@@ -21,11 +26,6 @@
         self.colorList = null;
         // 边框圆点数量
         self.edgeNum = 24;
-
-        // 音乐资源
-        self.bgm = document.getElementById('bgm');
-        self.prizeMusic = document.getElementById('prize-music');
-        self.rotateMusic = document.getElementById('rotate-music');
         
         // 转盘速度/能量
         self.speed = 2;
@@ -36,6 +36,7 @@
         self.baseRotated = 0;
         self.rotate = 0;
         self.prizeRotate = 0;
+        self.prizeIndex = null;
         // 可转次数
         self.count = 300;
         self.timer = null;
@@ -85,33 +86,33 @@
         // 发请求 获取JSON资源
         self.resouse = [{
                 "key": 1,
-                "value": "一等奖",
-                "img": "./imgs/mini.jpg"
-            },
-            {
-                "key": 0,
-                "value": "谢谢参与",
-                "img": "./imgs/null.jpg"
+                "value": "100元现金抵用券",
+                "img": "./imgs/store_1.jpg"
             },
             {
                 "key": 2,
-                "value": "二等奖",
-                "img": "./imgs/p40.jpg"
-            },
-            {
-                "key": 0,
-                "value": "谢谢参与",
-                "img": "./imgs/null.jpg"
+                "value": "50元现金抵用券",
+                "img": "./imgs/store_2.jpg"
             },
             {
                 "key": 3,
-                "value": "三等奖",
-                "img": "./imgs/xiaomi.jpg"
+                "value": "20元现金抵用券",
+                "img": "./imgs/store_3.jpg"
             },
             {
-                "key": 0,
+                "key": 4,
+                "value": "20元现金抵用券",
+                "img": "./imgs/store_4.jpg"
+            },
+            {
+                "key": 5,
+                "value": "20元现金抵用券",
+                "img": "./imgs/store_5.jpg"
+            },
+            {
+                "key": 6,
                 "value": "谢谢参与",
-                "img": "./imgs/null.jpg"
+                "img": "./imgs/null.png"
             }
         ];
         self.colors = ["#AE3EFF","#4D3FFF","#FC262C","#3A8BFF","#EE7602","#FE339F"];
@@ -184,7 +185,7 @@
             img.onload = function(){
                 self.ctx.save();
                 fillGraphic();
-                self.ctx.drawImage(img,0,0,400,400,-25,10,50,50);
+                self.ctx.drawImage(img,0,0,120,120,-23,15,46,46);
                 self.ctx.restore();
             };
             img.onerror = function(){
@@ -251,14 +252,14 @@
     Carousel.prototype.upDated = function(){
         if(this.state == 'off'){
             // 角度越低 减的越快  角度越高  减的越慢
-            this.rate -= this.prizeRotate / 360 * (this.rotate / 360);
+            this.rate -= (0.073 + 0.008*(this.prizeIndex)) * ((this.baseRotated - this.rotate) / 360);
             if(this.rate <= 1){
                 this.rate = 1;
             }
         }else{
             this.rate += 0.3;
-            if(this.rate >= 13){
-                this.rate = 13;
+            if(this.rate >= 14){
+                this.rate = 14;
             }
         }
         this.rotate = this.rotate + this.speed * this.rate;
@@ -273,8 +274,15 @@
         if(self.rotate >= self.baseRotated && self.state == 'off'){
             console.log(self.rotate,self.baseRotated);
             // 出现弹窗 播放音乐
-            $('.prize').addClass('prize-show');
+            if(self.result.key== 6){
+                // 未中奖
+                $('.not-winning').addClass('dialog-show');
+            }else{
+                // 中奖
+                $('.prize').addClass('dialog-show');
+            }
             self.rotateMusic.pause();
+            self.rotateMusic.currentTime = 0.0;
             // console.log("===========>转盘停止");
             self.rotate = self.baseRotated;
             window.cancelAnimationFrame(self.timer);
@@ -286,6 +294,7 @@
             self.baseRotated = 0;
             self.prizeRotate = 0;
             self.rotate = 0;
+            self.prizeIndex = null;
             return;
         }
         self.timer = window.requestAnimationFrame(function(){
@@ -307,7 +316,7 @@
         self.state = 'on';
         var time = setTimeout(function(){
             self.result = {
-                "key": 1,
+                "key":6,
                 "value": "一等奖",
                 "img": "./imgs/mini.jpg"
             };
@@ -318,6 +327,7 @@
                     var stAngle = bsAngle * index + 10, 
                         edAngle = bsAngle * (index + 1) - 10;
                     self.prizeRotate = Math.floor(Math.random() * (edAngle - stAngle + 1) + stAngle);
+                    self.prizeIndex = index;
                     console.log(stAngle,edAngle);
                     return;
                 }
