@@ -336,8 +336,34 @@ ul,ol{
 }
 
 /* 未中奖 */
-
-
+.not-winning>.dialog-body .content{
+    background: linear-gradient(180deg, rgb(254 254 254), #ffc46e);
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0px 4px 4px #8f590c;
+}
+.not-winning>.dialog-body .content img{
+    width:40%;
+    transform: translateY(-30%);
+}
+.not-winning>.dialog-body .content .hd{
+    transform: translateY(-30px);
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+.not-winning>.dialog-body .content .detail{
+    transform: translateY(-24px);
+    font-size: 16px;
+}
+.not-winning>.dialog-body .close{
+    position: absolute;
+    right: 12px;
+    top: 0;
+    font-size: 24px;
+    color: #757b96;
+    z-index: 9;
+}
 /* 按钮缩放 */
 @keyframes btnScale{
     0%{

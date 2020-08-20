@@ -56,7 +56,7 @@
         </section>
 
         <!-- 奖品dialog -->
-        <div class="prize">
+        <div class="prize dialog">
             <div class="dialog-body">
                 <div class="content">
                     <div class="hd">恭喜您中奖了</div>
@@ -71,7 +71,7 @@
                     </div>
                     <div class="info">优惠券备注信息优惠券备注信息</div>
                     <!-- 关闭 -->
-                    <span class="close" id="close">×</span>
+                    <span class="close">×</span>
                 </div>
                 <div class="btn-group">
                     <div class="btn-item">立即去使用</div>
@@ -81,14 +81,14 @@
         </div>
 
         <!-- 未中奖dialog -->
-        <div class="not-winning dialog-show">
+        <div class="not-winning dialog dialog-show">
             <div class="dialog-body">
                 <div class="content">
                     <img src="./imgs/not_winning.png">
-                    <div class="hd">恭喜您中奖了</div>
-                    <div class="info">优惠券备注信息优惠券备注信息</div>
+                    <div class="hd">非常遗憾!</div>
+                    <div class="detail">此次活动您未中奖...</div>
                     <!-- 关闭 -->
-                    <span class="close" id="close">×</span>
+                    <span class="close">×</span>
                 </div>
             </div>
         </div>
@@ -110,8 +110,8 @@
     <script src="./carousel.js"></script>
     <script>
         var carouselBtn = document.getElementById('btnControl'),
-            bgmBtn = document.getElementById('bgm-control'),
-            closeBtn = document.getElementById('close');
+            bgmBtn = document.getElementById('bgm-control');
+            // closeBtn = document.getElementById('close');
         // 创建一个游戏类
         var Carousel = new Carousel({
             "canvasId":'carousel',
@@ -144,9 +144,9 @@
         };
 
         // 关闭弹窗
-        closeBtn.onclick = function(){
-            $('.prize').removeClass('prize-show');
-        };
+        $('.close').click(function(){
+            $('.dialog').removeClass('dialog-show');
+        });
 
         // 规则记录内容切换
         var tabItem = document.querySelectorAll('.hd-item'),
