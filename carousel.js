@@ -52,6 +52,7 @@
         self.loadResource(function() {
             self.render(function(){
                 self.caseCtx.drawImage(self.canvas,0,0);
+                $('.tips').html(`您还有${self.count}次抽奖机会`);
             });
         });
     };
@@ -316,9 +317,9 @@
         self.state = 'on';
         var time = setTimeout(function(){
             self.result = {
-                "key":6,
+                "key":1,
                 "value": "一等奖",
-                "img": "./imgs/mini.jpg"
+                "img": "./imgs/store_1.jpg"
             };
             var bsAngle = 360 / self.resouse.length;
             // 计算转盘的获奖角度区间
@@ -366,6 +367,10 @@
         self.requestResult(function(){
             self.count --;
             self.state = 'off';
+            $('.tips').html(`您还有${self.count}次抽奖机会`);
+            if(self.count <= 0){
+                $('.tips').html(`您的抽奖次数已用完`);
+            }
         });
     };
 })();

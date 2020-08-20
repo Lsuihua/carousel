@@ -211,7 +211,7 @@ ul,ol{
 }
 
 /* 奖品样式 */
-.prize,.not-winning{
+.dialog{
     position: fixed;
     background: rgba(0,0,0,.4);
     width: 100%;
@@ -223,7 +223,7 @@ ul,ol{
 .dialog-show{
     z-index: 9;
 }
-.prize>.dialog-body,.not-winning>.dialog-body{
+.dialog>.dialog-body{
     width: 84%;
     position: absolute;
     top: 50%;
@@ -351,10 +351,13 @@ ul,ol{
     font-size: 24px;
     font-weight: 700;
     letter-spacing: 2px;
+    text-shadow: 2px 2px 4px rgb(95 63 15 / 65%);
+    color: #fff;
 }
 .not-winning>.dialog-body .content .detail{
-    transform: translateY(-24px);
+    transform: translateY(-20px);
     font-size: 16px;
+    color: #6f6472;
 }
 .not-winning>.dialog-body .close{
     position: absolute;
