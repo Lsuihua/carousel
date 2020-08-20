@@ -50,10 +50,7 @@
 
         // 读取异步数据
         self.loadResource(function() {
-            self.render(function(){
-                self.caseCtx.drawImage(self.canvas,0,0);
-                $('.tips').html(`您还有${self.count}次抽奖机会`);
-            });
+            self.render();
         });
     };
 
@@ -188,17 +185,28 @@
                 fillGraphic();
                 self.ctx.drawImage(img,0,0,120,120,-23,15,46,46);
                 self.ctx.restore();
+                // 图片资源加载完成  渲染canvas
+                if(i+1 >= self.resouse.length){
+                    self.caseCtx.drawImage(self.canvas,0,0);
+                }
             };
             img.onerror = function(){
                 // 弧度换算成角度
                 self.ctx.save();
                 fillGraphic();
                 self.ctx.restore();
+                // 图片资源加载完成  填充canvas
+                if(i+1 >= self.resouse.length){
+                    self.caseCtx.drawImage(self.canvas,0,0);
+                }
             };
         }else{
             self.ctx.save();
             fillGraphic();
             self.ctx.restore();
+            if(i+1 >= self.resouse.length){
+                self.caseCtx.drawImage(self.canvas,0,0);
+            }
         }
         self.ctx.restore();
     };
@@ -242,11 +250,8 @@
         for(var j = 0;j<self.edgeNum; j++){
             self.drawEdge(j);
         }
-        // 延迟资源加载回调
-        var t = setTimeout(function(){
-            callBack && callBack();
-            clearTimeout(t);
-        },120);
+        // 抽奖提示
+        $('.tips').html(`您还有${self.count}次抽奖机会`);
     };
 
     // 更新
