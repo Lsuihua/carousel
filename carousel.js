@@ -154,6 +154,16 @@
             return 'rgb(' + r + ',' + g + ',' + b + ')';
         };
 
+        // 渲染dom canvas 
+        var renderCanvas = function(i){
+            if(i+1 >= self.resouse.length){
+                var t = setTimeout(function(){
+                    self.caseCtx.clearRect(0,0,self.canvas.width,self.canvas.height);
+                    self.caseCtx.drawImage(self.canvas,0,0);
+                },200);
+            }
+        };
+
         // 扇形区域
         this.ctx.beginPath();
         this.ctx.moveTo(this.canvas.width / 2, this.canvas.height / 2);
@@ -186,9 +196,7 @@
                 self.ctx.drawImage(img,0,0,120,120,-23,15,46,46);
                 self.ctx.restore();
                 // 图片资源加载完成  渲染canvas
-                if(i+1 >= self.resouse.length){
-                    self.caseCtx.drawImage(self.canvas,0,0);
-                }
+                renderCanvas(i);
             };
             img.onerror = function(){
                 // 弧度换算成角度
@@ -196,17 +204,13 @@
                 fillGraphic();
                 self.ctx.restore();
                 // 图片资源加载完成  填充canvas
-                if(i+1 >= self.resouse.length){
-                    self.caseCtx.drawImage(self.canvas,0,0);
-                }
+                renderCanvas(i);
             };
         }else{
             self.ctx.save();
             fillGraphic();
             self.ctx.restore();
-            if(i+1 >= self.resouse.length){
-                self.caseCtx.drawImage(self.canvas,0,0);
-            }
+            renderCanvas(i);
         }
         self.ctx.restore();
     };
@@ -242,13 +246,15 @@
         var self = this;
         // 画背景
         self.drawFullBg();
-        // 画扇形主内容
-        for (var i = 0; i < self.resouse.length; i++) {
-            self.drawSector(i, self.resouse[i],self.colors[i]);
-        }
+
         // 转盘边缘
         for(var j = 0;j<self.edgeNum; j++){
             self.drawEdge(j);
+        }
+        
+        // 画扇形主内容
+        for (var i = 0; i < self.resouse.length; i++) {
+            self.drawSector(i, self.resouse[i],self.colors[i]);
         }
         // 抽奖提示
         $('.tips').html(`您还有${self.count}次抽奖机会`);
